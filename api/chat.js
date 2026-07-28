@@ -121,7 +121,7 @@ Phải có đủ 3 thông tin:
 2. **Địa chỉ / tỉnh thành** (tính phụ phí di chuyển)
 3. **Dịch vụ cần**: chụp / quay / combo
 
-Nếu thiẽu → hỏi gộp, **tối đa 2 câu**.
+Nếu thiếu → hỏi gộp, **tối đa 2 câu**.
 
 ---
 
@@ -171,7 +171,13 @@ Bước 4 — Nếu vẫn từ chối sau 3 lượt: ghi nhận brief, hẹn ph�
 - Khách đang ở trên website pes-studio.com → KHÔNG nhắc lại URL website
 - KHÔNG nhắc số điện thoại trừ khi khách hỏi liên hệ
 - Khi cần khách liên hệ trực tiếp: gợi ý nhắn Zalo qua nút trên website hoặc đặt lịch tại book.pes-studio.com
-- Câu mở đầu: "Chào anh/chị! Em là trợ lý tư vấn của PES Studio. Anh/chị đang quan tâm dịch vụ chụp ảnh / quay video cho không gian nào ạ?"`;
+- Câu mở đầu: "Chào anh/chị! Em là trợ lý tư vấn của PES Studio. Anh/chị đang quan tâm dịch vụ chụp ảnh / quay video cho không gian nào ạ?"
+
+## XỬ LÝ ẢNH TỪ KHÁCH
+- Khách có thể gửi kèm ảnh không gian để em xem qua
+- Khi nhận ảnh: mô tả ngắn những gì thấy trong ảnh (loại không gian, phong cách, ước lượng diện tích nếu có thể)
+- Dựa vào ảnh để gợi ý gói phù hợp chính xác hơn
+- Nếu ảnh không rõ hoặc không liên quan: nhẹ nhàng hỏi lại`;
 
 // Rate limiting: simple in-memory store
 const rateLimiter = new Map();
@@ -244,21 +250,43 @@ module.exports = async function handler(req, res) {
       systemInstruction: SYSTEM_PROMPT,
     });
 
-    // Convert messages to Gemini format
+    // Convert messages to Gemini format (supports multimodal)
+    function buildParts(m) {
+      const parts = [];
+      if (m.content) parts.push({ text: m.content });
+      if (m.image && m.image.base64 && m.image.mimeType) {
+        parts.push({
+          inlineData: {
+            mimeType: m.image.mimeType,
+            data: m.image.base64,
+          },
+        });
+      }
+      if (parts.length === 0) parts.push({ text: "" });
+      return parts;
+    }
+
     const history = messages.slice(0, -1).map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
+      parts: buildParts(m),
     }));
 
     const chat = model.startChat({ history });
-    const lastMessage = messages[messages.length - 1].content;
+    const lastMsg = messages[messages.length - 1];
+    const lastText = lastMsg.content || "";
 
     // Safety: limit input length
-    if (lastMessage.length > 2000) {
+    if (lastText.length > 2000) {
       return res.status(400).json({ error: "Tin nhắn quá dài. Vui lòng gửi ngắn hơn." });
     }
 
-    const result = await chat.sendMessage(lastMessage);
+    // Safety: limit image size (~4MB base64)
+    if (lastMsg.image && lastMsg.image.base64 && lastMsg.image.base64.length > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: "Ảnh quá lớn. Vui lòng gửi ảnh nhỏ hơn." });
+    }
+
+    const lastParts = buildParts(lastMsg);
+    const result = await chat.sendMessage(lastParts);
     const response = result.response.text();
 
     return res.status(200).json({ reply: response });
