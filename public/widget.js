@@ -213,21 +213,25 @@
     .pes-chat-input::placeholder { color: ${BRAND.textMuted}; }
     .pes-chat-input:focus { border-color: ${BRAND.primary}; }
     .pes-chat-send {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      border: none;
-      background: ${BRAND.primary};
-      color: ${BRAND.white};
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      color: ${BRAND.primary};
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       flex-shrink: 0;
+      padding: 0 !important;
+      outline: none !important;
       transition: opacity 0.2s;
     }
-    .pes-chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
-    .pes-chat-send svg { width: 18px; height: 18px; fill: ${BRAND.white}; }
+    .pes-chat-send:hover { opacity: 0.75; }
+    .pes-chat-send:disabled { opacity: 0.3; cursor: not-allowed; }
+    .pes-chat-send svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .pes-chat-footer {
       padding: 8px;
@@ -305,24 +309,24 @@
 
     /* Upload button */
     .pes-chat-upload-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      border: none;
-      background: transparent;
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
       color: ${BRAND.textMuted};
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       flex-shrink: 0;
-      transition: color 0.2s, background 0.2s;
+      padding: 0 !important;
+      outline: none !important;
+      transition: color 0.2s;
     }
-    .pes-chat-upload-btn:hover {
-      color: ${BRAND.primary};
-      background: rgba(187,134,252,0.1);
-    }
-    .pes-chat-upload-btn svg { width: 20px; height: 20px; fill: currentColor; }
+    .pes-chat-upload-btn:hover { color: ${BRAND.primary}; background: transparent !important; }
+    .pes-chat-upload-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Image preview */
     .pes-img-preview {
@@ -426,12 +430,12 @@
     </div>
     <div class="pes-chat-input-wrap">
       <button class="pes-chat-upload-btn" id="pes-upload-btn" aria-label="Tải ảnh lên">
-        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       </button>
       <input type="file" id="pes-file-input" accept="image/*" style="display:none;">
       <textarea class="pes-chat-input" id="pes-input" placeholder="Nhập câu hỏi..." rows="1"></textarea>
       <button class="pes-chat-send" id="pes-send" aria-label="Gửi">
-        <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.48c.81-.35.81-1.49 0-1.84L3.4 3.6c-.66-.29-1.39.2-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
     <div class="pes-privacy">
