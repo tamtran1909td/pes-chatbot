@@ -14,10 +14,14 @@
     white: "#ffffff",
   };
 
+  // PES Studio logo (white, 72x72)
+  const LOGO_B64 = "data:image/png;base64,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";
+
   // === STATE ===
   let isOpen = false;
   let messages = [];
   let isLoading = false;
+  let pendingImage = null; // { base64, mimeType }
 
   // === STYLES ===
   const style = document.createElement("style");
@@ -59,7 +63,7 @@
     #pes-chat-box {
       position: fixed;
       bottom: 96px;
-      right: 24px;
+      right: 80px;
       width: 380px;
       max-width: calc(100vw - 32px);
       height: 520px;
@@ -257,6 +261,123 @@
       border-color: ${BRAND.primary};
     }
 
+    /* Notification bubble */
+    #pes-chat-notify {
+      position: fixed;
+      bottom: 90px;
+      right: 24px;
+      background: ${BRAND.bg};
+      color: ${BRAND.text};
+      padding: 12px 16px;
+      border-radius: 12px;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      z-index: 99999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 280px;
+      border: 1px solid rgba(187,134,252,0.25);
+      animation: pesSlideUp 0.4s ease-out;
+      cursor: pointer;
+    }
+    #pes-chat-notify:hover {
+      border-color: ${BRAND.primary};
+    }
+    #pes-chat-notify .pes-notify-close {
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: ${BRAND.textMuted};
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 2px;
+    }
+    @keyframes pesSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Upload button */
+    .pes-chat-upload-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: ${BRAND.textMuted};
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.2s, background 0.2s;
+    }
+    .pes-chat-upload-btn:hover {
+      color: ${BRAND.primary};
+      background: rgba(187,134,252,0.1);
+    }
+    .pes-chat-upload-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* Image preview */
+    .pes-img-preview {
+      padding: 8px 16px 0;
+      background: ${BRAND.bg};
+    }
+    .pes-img-preview-inner {
+      position: relative;
+      display: inline-block;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .pes-img-preview img {
+      max-width: 120px;
+      max-height: 80px;
+      display: block;
+    }
+    .pes-img-preview-close {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      border: none;
+      color: ${BRAND.white};
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* Image in message */
+    .pes-msg img.pes-msg-image {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* Privacy notice */
+    .pes-privacy {
+      text-align: center;
+      font-size: 10px;
+      color: ${BRAND.textMuted};
+      padding: 4px 16px 8px;
+      line-height: 1.4;
+    }
+    .pes-privacy svg { width: 10px; height: 10px; fill: ${BRAND.teal}; vertical-align: -1px; margin-right: 3px; }
+
+    /* Logo avatar */
+    .pes-chat-avatar img { width: 24px; height: 24px; object-fit: contain; }
+
     @media (max-width: 480px) {
       #pes-chat-box {
         bottom: 0;
@@ -267,6 +388,7 @@
         border-radius: 0;
       }
       #pes-chat-btn { bottom: 16px !important; right: 16px !important; width: 54px !important; height: 54px !important; min-width: 54px !important; max-width: 54px !important; min-height: 54px !important; max-height: 54px !important; padding: 0 !important; }
+      #pes-chat-notify { bottom: 76px; right: 16px; max-width: 260px; }
     }
   `;
   document.head.appendChild(style);
@@ -285,7 +407,7 @@
   box.innerHTML = `
     <div class="pes-chat-header">
       <div class="pes-chat-header-left">
-        <div class="pes-chat-avatar">P</div>
+        <div class="pes-chat-avatar"><img src="${LOGO_B64}" alt="PES"></div>
         <div>
           <div class="pes-chat-title">PES Studio</div>
           <div class="pes-chat-subtitle">Tư vấn báo giá tự động</div>
@@ -294,11 +416,25 @@
       <button class="pes-chat-close" aria-label="Đóng chat">&times;</button>
     </div>
     <div class="pes-chat-messages" id="pes-msgs"></div>
+    <div class="pes-img-preview" id="pes-img-preview" style="display:none;">
+      <div class="pes-img-preview-inner">
+        <img id="pes-img-thumb" src="" alt="Preview">
+        <button class="pes-img-preview-close" id="pes-img-remove" aria-label="Xóa ảnh">&times;</button>
+      </div>
+    </div>
     <div class="pes-chat-input-wrap">
+      <button class="pes-chat-upload-btn" id="pes-upload-btn" aria-label="Tải ảnh lên">
+        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+      </button>
+      <input type="file" id="pes-file-input" accept="image/*" style="display:none;">
       <textarea class="pes-chat-input" id="pes-input" placeholder="Nhập câu hỏi..." rows="1"></textarea>
       <button class="pes-chat-send" id="pes-send" aria-label="Gửi">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
+    </div>
+    <div class="pes-privacy">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+      Nội dung được bảo mật và lưu trữ nội bộ PES Studio
     </div>
     <div class="pes-chat-footer">
       Powered by <a href="https://pes-studio.com" target="_blank" rel="noopener">PES Studio</a>
@@ -309,6 +445,11 @@
   const msgsEl = document.getElementById("pes-msgs");
   const inputEl = document.getElementById("pes-input");
   const sendBtn = document.getElementById("pes-send");
+  const uploadBtn = document.getElementById("pes-upload-btn");
+  const fileInput = document.getElementById("pes-file-input");
+  const imgPreview = document.getElementById("pes-img-preview");
+  const imgThumb = document.getElementById("pes-img-thumb");
+  const imgRemove = document.getElementById("pes-img-remove");
 
   // === HELPERS ===
   function scrollToBottom() {
@@ -326,12 +467,19 @@
     return text;
   }
 
-  function addMessage(role, content) {
-    messages.push({ role, content });
+  function addMessage(role, content, imageData) {
+    const msg = { role, content };
+    if (imageData) msg.image = imageData;
+    messages.push(msg);
 
     const div = document.createElement("div");
     div.className = `pes-msg pes-msg-${role === "user" ? "user" : "bot"}`;
-    div.innerHTML = formatMessage(content);
+    let html = "";
+    if (imageData) {
+      html += `<img class="pes-msg-image" src="data:${imageData.mimeType};base64,${imageData.base64}" alt="Ảnh đính kèm">`;
+    }
+    html += formatMessage(content);
+    div.innerHTML = html;
     msgsEl.appendChild(div);
     scrollToBottom();
   }
@@ -388,13 +536,18 @@
 
   // === API CALL ===
   async function sendMessage(text) {
-    if (isLoading || !text.trim()) return;
+    if (isLoading || (!text.trim() && !pendingImage)) return;
 
     // Remove quick buttons if present
     const quickEl = document.getElementById("pes-quick");
     if (quickEl) quickEl.remove();
 
-    addMessage("user", text.trim());
+    const currentImage = pendingImage;
+    pendingImage = null;
+    imgPreview.style.display = "none";
+
+    const msgText = text.trim() || (currentImage ? "Anh/chị gửi ảnh không gian để tham khảo báo giá." : "");
+    addMessage("user", msgText, currentImage);
     isLoading = true;
     sendBtn.disabled = true;
     inputEl.value = "";
@@ -406,10 +559,11 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: messages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
+          messages: messages.map((m) => {
+            const obj = { role: m.role, content: m.content };
+            if (m.image) obj.image = m.image;
+            return obj;
+          }),
         }),
       });
 
@@ -468,11 +622,91 @@
     inputEl.style.height = Math.min(inputEl.scrollHeight, 80) + "px";
   });
 
+  // === IMAGE UPLOAD ===
+  uploadBtn.addEventListener("click", () => fileInput.click());
+
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate: max 5MB, image only
+    if (!file.type.startsWith("image/")) {
+      alert("Vui lòng chọn file ảnh (JPG, PNG, WEBP).");
+      fileInput.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.");
+      fileInput.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Full = reader.result; // data:image/jpeg;base64,...
+      const parts = base64Full.split(",");
+      const mimeType = parts[0].match(/:(.*?);/)[1];
+      const base64 = parts[1];
+
+      pendingImage = { base64, mimeType };
+      imgThumb.src = base64Full;
+      imgPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = "";
+  });
+
+  imgRemove.addEventListener("click", () => {
+    pendingImage = null;
+    imgPreview.style.display = "none";
+    imgThumb.src = "";
+  });
+
+  // === NOTIFICATION BUBBLE (after 5s) ===
+  let notifyTimer = null;
+  let notifyShown = false;
+
+  function showNotification() {
+    if (notifyShown || isOpen) return;
+    notifyShown = true;
+
+    const notif = document.createElement("div");
+    notif.id = "pes-chat-notify";
+    notif.innerHTML = `
+      <button class="pes-notify-close" aria-label="Đóng">&times;</button>
+      <strong style="color:${BRAND.primary}">PES Studio AI</strong> có thể giúp anh/chị chọn gói chụp phù hợp nhất cho dự án!
+    `;
+    document.body.appendChild(notif);
+
+    // Click notification → open chat
+    notif.addEventListener("click", (e) => {
+      if (e.target.classList.contains("pes-notify-close")) {
+        notif.remove();
+        return;
+      }
+      notif.remove();
+      isOpen = true;
+      box.classList.add("open");
+      if (messages.length === 0) showGreeting();
+      inputEl.focus();
+    });
+
+    // Auto-hide after 8s
+    setTimeout(() => { if (notif.parentNode) notif.remove(); }, 8000);
+  }
+
+  notifyTimer = setTimeout(showNotification, 5000);
+
   // Close on outside click
   document.addEventListener("click", (e) => {
     if (isOpen && !box.contains(e.target) && !btn.contains(e.target)) {
       isOpen = false;
       box.classList.remove("open");
+    }
+    // Also dismiss notification on outside click
+    const notif = document.getElementById("pes-chat-notify");
+    if (notif && !notif.contains(e.target) && !btn.contains(e.target)) {
+      notif.remove();
     }
   });
 })();
