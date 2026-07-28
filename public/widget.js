@@ -14,8 +14,8 @@
     white: "#ffffff",
   };
 
-  // PES Studio logo (white, 72x72)
-  const LOGO_B64 = "data:image/png;base64,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";
+  // PES Studio logo (96x96, black on white background)
+  const LOGO_B64 = "data:image/png;base64,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";
 
   // === STATE ===
   let isOpen = false;
@@ -94,10 +94,12 @@
       gap: 12px;
     }
     .pes-chat-avatar {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: ${BRAND.primary};
+      background: #ffffff;
+      padding: 2px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -376,7 +378,7 @@
     .pes-privacy svg { width: 10px; height: 10px; fill: ${BRAND.teal}; vertical-align: -1px; margin-right: 3px; }
 
     /* Logo avatar */
-    .pes-chat-avatar img { width: 24px; height: 24px; object-fit: contain; }
+    .pes-chat-avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
 
     @media (max-width: 480px) {
       #pes-chat-box {
@@ -424,12 +426,12 @@
     </div>
     <div class="pes-chat-input-wrap">
       <button class="pes-chat-upload-btn" id="pes-upload-btn" aria-label="Tải ảnh lên">
-        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
       </button>
       <input type="file" id="pes-file-input" accept="image/*" style="display:none;">
       <textarea class="pes-chat-input" id="pes-input" placeholder="Nhập câu hỏi..." rows="1"></textarea>
       <button class="pes-chat-send" id="pes-send" aria-label="Gửi">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.48c.81-.35.81-1.49 0-1.84L3.4 3.6c-.66-.29-1.39.2-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
       </button>
     </div>
     <div class="pes-privacy">
@@ -597,6 +599,7 @@
     isOpen = !isOpen;
     box.classList.toggle("open", isOpen);
     if (isOpen) {
+      stopNotifyLoop();
       if (messages.length === 0) showGreeting();
       inputEl.focus();
     }
@@ -605,6 +608,8 @@
   box.querySelector(".pes-chat-close").addEventListener("click", () => {
     isOpen = false;
     box.classList.remove("open");
+    // Restart notify loop when chat is closed
+    startNotifyLoop();
   });
 
   sendBtn.addEventListener("click", () => sendMessage(inputEl.value));
@@ -662,19 +667,39 @@
     imgThumb.src = "";
   });
 
-  // === NOTIFICATION BUBBLE (after 5s) ===
-  let notifyTimer = null;
-  let notifyShown = false;
+  // === NOTIFICATION BUBBLE (repeating: 10s interval, 5s display) ===
+  let notifyInterval = null;
+
+  // Pop sound using Web Audio API
+  function playPopSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.15);
+    } catch(e) {}
+  }
 
   function showNotification() {
-    if (notifyShown || isOpen) return;
-    notifyShown = true;
+    if (isOpen) return;
+    // Remove existing notification if any
+    const existing = document.getElementById("pes-chat-notify");
+    if (existing) existing.remove();
+
+    playPopSound();
 
     const notif = document.createElement("div");
     notif.id = "pes-chat-notify";
     notif.innerHTML = `
       <button class="pes-notify-close" aria-label="Đóng">&times;</button>
-      <strong style="color:${BRAND.primary}">PES Studio AI</strong> có thể giúp anh/chị chọn gói chụp phù hợp nhất cho dự án!
+      <strong style="color:$` + `{BRAND.primary}">PES Studio AI</strong> có thể giúp anh/chị chọn gói chụp phù hợp nhất cho dự án!
     `;
     document.body.appendChild(notif);
 
@@ -685,17 +710,30 @@
         return;
       }
       notif.remove();
+      stopNotifyLoop();
       isOpen = true;
       box.classList.add("open");
       if (messages.length === 0) showGreeting();
       inputEl.focus();
     });
 
-    // Auto-hide after 8s
-    setTimeout(() => { if (notif.parentNode) notif.remove(); }, 8000);
+    // Auto-hide after 5s
+    setTimeout(() => { if (notif.parentNode) notif.remove(); }, 5000);
   }
 
-  notifyTimer = setTimeout(showNotification, 5000);
+  function startNotifyLoop() {
+    showNotification();
+    notifyInterval = setInterval(showNotification, 15000); // 5s display + 10s pause = 15s cycle
+  }
+
+  function stopNotifyLoop() {
+    if (notifyInterval) { clearInterval(notifyInterval); notifyInterval = null; }
+    const existing = document.getElementById("pes-chat-notify");
+    if (existing) existing.remove();
+  }
+
+  // Start first popup after 5s, then loop
+  setTimeout(startNotifyLoop, 5000);
 
   // Close on outside click
   document.addEventListener("click", (e) => {
