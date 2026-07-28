@@ -23,21 +23,32 @@
   const style = document.createElement("style");
   style.textContent = `
     #pes-chat-btn {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: ${BRAND.primary};
-      border: none;
+      position: fixed !important;
+      bottom: 24px !important;
+      right: 24px !important;
+      width: 60px !important;
+      height: 60px !important;
+      min-width: 60px !important;
+      min-height: 60px !important;
+      max-width: 60px !important;
+      max-height: 60px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 50% !important;
+      background: ${BRAND.primary} !important;
+      border: none !important;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(187,134,252,0.4);
       z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       transition: transform 0.2s, box-shadow 0.2s;
+      box-sizing: border-box !important;
+      line-height: 1 !important;
+      font-size: 0 !important;
+      text-indent: 0 !important;
+      letter-spacing: 0 !important;
     }
     #pes-chat-btn:hover {
       transform: scale(1.08);
@@ -255,7 +266,7 @@
         max-height: 100vh;
         border-radius: 0;
       }
-      #pes-chat-btn { bottom: 16px; right: 16px; width: 54px; height: 54px; }
+      #pes-chat-btn { bottom: 16px !important; right: 16px !important; width: 54px !important; height: 54px !important; min-width: 54px !important; max-width: 54px !important; min-height: 54px !important; max-height: 54px !important; padding: 0 !important; }
     }
   `;
   document.head.appendChild(style);
