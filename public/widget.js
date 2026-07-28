@@ -264,7 +264,7 @@
   // Floating button
   const btn = document.createElement("button");
   btn.id = "pes-chat-btn";
-  btn.setAttribute("aria-label", "Má» chat tÆ° váº¥n PES Studio");
+  btn.setAttribute("aria-label", "Mở chat tư vấn PES Studio");
   btn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>`;
   document.body.appendChild(btn);
 
@@ -277,15 +277,15 @@
         <div class="pes-chat-avatar">P</div>
         <div>
           <div class="pes-chat-title">PES Studio</div>
-          <div class="pes-chat-subtitle">TÆ° váº¥n bÃ¡o giÃ¡ tá»± Äá»ng</div>
+          <div class="pes-chat-subtitle">Tư vấn báo giá tự động</div>
         </div>
       </div>
-      <button class="pes-chat-close" aria-label="ÄÃ³ng chat">&times;</button>
+      <button class="pes-chat-close" aria-label="Đóng chat">&times;</button>
     </div>
     <div class="pes-chat-messages" id="pes-msgs"></div>
     <div class="pes-chat-input-wrap">
-      <textarea class="pes-chat-input" id="pes-input" placeholder="Nháº­p cÃ¢u há»i..." rows="1"></textarea>
-      <button class="pes-chat-send" id="pes-send" aria-label="Gá»­i">
+      <textarea class="pes-chat-input" id="pes-input" placeholder="Nhập câu hỏi..." rows="1"></textarea>
+      <button class="pes-chat-send" id="pes-send" aria-label="Gửi">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
@@ -345,10 +345,10 @@
     wrap.id = "pes-quick";
 
     const buttons = [
-      "Chá»¥p cÄn há» 2PN",
-      "Chá»¥p homestay",
+      "Chụp căn hộ 2PN",
+      "Chụp homestay",
       "Quay video villa",
-      "Xem báº£ng giÃ¡",
+      "Xem bảng giá",
     ];
 
     buttons.forEach((text) => {
@@ -370,7 +370,7 @@
   function showGreeting() {
     addMessage(
       "assistant",
-      "ChÃ o anh/chá»! Em lÃ  trá»£ lÃ½ tÆ° váº¥n cá»§a PES Studio.\n\nAnh/chá» Äang quan tÃ¢m dá»ch vá»¥ chá»¥p áº£nh / quay video cho khÃ´ng gian nÃ o áº¡?"
+      "Chào anh/chị! Em là trợ lý tư vấn của PES Studio.\n\nAnh/chị đang quan tâm dịch vụ chụp ảnh / quay video cho không gian nào ạ?"
     );
     showQuickButtons();
   }
@@ -411,14 +411,14 @@
         addMessage(
           "assistant",
           data.error ||
-            "Xin lá»i, em Äang gáº·p sá»± cá». Anh/chá» vui lÃ²ng thá»­ láº¡i sau hoáº·c nháº¯n Zalo Äá» ÄÆ°á»£c tÆ° váº¥n trá»±c tiáº¿p."
+            "Xin lỗi, em đang gặp sự cố. Anh/chị vui lòng thử lại sau hoặc nhắn Zalo để được tư vấn trực tiếp."
         );
       }
     } catch (err) {
       hideLoading();
       addMessage(
         "assistant",
-        "Xin lá»i, khÃ´ng thá» káº¿t ná»i. Anh/chá» vui lÃ²ng kiá»m tra káº¿t ná»i máº¡ng vÃ  thá»­ láº¡i."
+        "Xin lỗi, không thể kết nối. Anh/chị vui lòng kiểm tra kết nối mạng và thử lại."
       );
     }
 
