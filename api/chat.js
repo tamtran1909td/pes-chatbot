@@ -255,6 +255,21 @@ async function checkUpstashLimits(ip) {
   return { tooFast: false, overDaily: dRes[0].result > DAILY_CAP };
 }
 
+// Ghi log câu hỏi khách vào Upstash theo tháng (để tổng hợp insight)
+async function logQuestion(sid, text) {
+  if (!upstashEnabled || !text) return;
+  const clean = String(text)
+    .slice(0, 500)
+    .replace(/(\+?\d[\d\s().\-]{7,}\d)/g, "[sđt]"); // che số điện thoại
+  const month = new Date().toISOString().slice(0, 7).replace("-", ""); // YYYYMM
+  const key = "pes:chatlog:" + month;
+  const entry = JSON.stringify({ ts: Date.now(), sid: sid || "", q: clean });
+  await redisPipeline([
+    ["RPUSH", key, entry],
+    ["EXPIRE", key, 15552000, "NX"], // tự xoá sau 180 ngày
+  ]);
+}
+
 module.exports = async function handler(req, res) {
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -294,12 +309,20 @@ module.exports = async function handler(req, res) {
   }
 
   // Validate input
-  const { messages } = req.body;
+  const { messages, sessionId } = req.body;
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "Missing messages" });
   }
   if (messages.length > 30) {
     return res.status(400).json({ error: "Conversation too long. Please start a new chat." });
+  }
+
+  // Ghi log câu hỏi khách (không chặn/không làm gãy chat nếu lỗi)
+  try {
+    const lastUserText = (messages[messages.length - 1] || {}).content || "";
+    await logQuestion(sessionId, lastUserText);
+  } catch (e) {
+    console.error("chatlog error:", e.message);
   }
 
   // Validate API key
