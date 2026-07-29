@@ -29,6 +29,21 @@
   const SEND_COOLDOWN_MS = 1500; // tối thiểu giữa 2 tin
   const MAX_MSGS_PER_SESSION = 25; // trần số tin mỗi phiên
 
+  // ID phiên (nhóm hội thoại khi phân tích) + tracking GA4
+  const SESSION_ID =
+    "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function track(event, params) {
+    try {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", event, params || {});
+      } else {
+        (window.dataLayer = window.dataLayer || []).push(
+          Object.assign({ event: event }, params || {})
+        );
+      }
+    } catch (e) {}
+  }
+
   // === STYLES ===
   const style = document.createElement("style");
   style.textContent = `
@@ -567,6 +582,7 @@
     lastSentAt = now;
     lastSentText = trimmed;
     sentCount++;
+    track("pes_chat_message", { count: sentCount });
 
     // Remove quick buttons if present
     const quickEl = document.getElementById("pes-quick");
@@ -589,6 +605,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          sessionId: SESSION_ID,
           messages: messages.map((m) => {
             const obj = { role: m.role, content: m.content };
             if (m.image) obj.image = m.image;
@@ -628,6 +645,7 @@
     box.classList.toggle("open", isOpen);
     if (isOpen) {
       stopNotifyLoop();
+      track("pes_chat_open");
       if (messages.length === 0) showGreeting();
       inputEl.focus();
       adjustViewport();
