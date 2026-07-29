@@ -204,6 +204,57 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
+// ====== Upstash Redis (chống spam bền vững, dùng chung mọi instance serverless) ======
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const upstashEnabled = !!(UPSTASH_URL && UPSTASH_TOKEN);
+
+// Giới hạn (có thể chỉnh qua env)
+const RL_PER_MIN = parseInt(process.env.RL_PER_MIN || "8", 10); // tin / phút / IP
+const RL_PER_HOUR = parseInt(process.env.RL_PER_HOUR || "40", 10); // tin / giờ / IP
+const DAILY_CAP = parseInt(process.env.DAILY_CAP || "800", 10); // trần tổng toàn site / ngày
+
+async function redisPipeline(commands) {
+  const r = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(commands),
+  });
+  if (!r.ok) throw new Error("Upstash HTTP " + r.status);
+  return r.json(); // [{ result }, ...]
+}
+
+// Trả về { tooFast, overDaily } — fail-open nếu Redis lỗi
+async function checkUpstashLimits(ip) {
+  const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const mKey = `pes:rl:m:${ip}`;
+  const hKey = `pes:rl:h:${ip}`;
+  const dKey = `pes:day:${day}`;
+
+  // Cửa sổ cố định: chỉ đặt EXPIRE ở lần tăng đầu tiên (NX)
+  const res = await redisPipeline([
+    ["INCR", mKey],
+    ["EXPIRE", mKey, 60, "NX"],
+    ["INCR", hKey],
+    ["EXPIRE", hKey, 3600, "NX"],
+  ]);
+  const mCount = res[0].result;
+  const hCount = res[2].result;
+  if (mCount > RL_PER_MIN || hCount > RL_PER_HOUR) {
+    return { tooFast: true, overDaily: false };
+  }
+
+  // Chỉ tính vào trần ngày khi đã qua được throttle theo IP
+  const dRes = await redisPipeline([
+    ["INCR", dKey],
+    ["EXPIRE", dKey, 172800, "NX"],
+  ]);
+  return { tooFast: false, overDaily: dRes[0].result > DAILY_CAP };
+}
+
 module.exports = async function handler(req, res) {
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -221,9 +272,24 @@ module.exports = async function handler(req, res) {
   const allowedOrigin = process.env.ALLOWED_ORIGIN || "https://pes-studio.com";
   res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
 
-  // Rate limit
-  const ip = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
-  if (!checkRateLimit(ip)) {
+  // Rate limit (chống spam + bảo vệ chi phí API)
+  const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim()
+    || req.socket?.remoteAddress || "unknown";
+  if (upstashEnabled) {
+    try {
+      const { tooFast, overDaily } = await checkUpstashLimits(ip);
+      if (tooFast) {
+        return res.status(429).json({ error: "Anh/chị gửi hơi nhanh rồi ạ. Vui lòng chờ một chút rồi thử lại nhé." });
+      }
+      if (overDaily) {
+        return res.status(429).json({ error: "Hệ thống tư vấn tự động đã đạt giới hạn hôm nay. Anh/chị vui lòng nhắn Zalo để được hỗ trợ trực tiếp nhé!" });
+      }
+    } catch (e) {
+      // Fail-open: không chặn khách thật khi Redis gặp sự cố
+      console.error("Upstash rate-limit error (fail-open):", e.message);
+    }
+  } else if (!checkRateLimit(ip)) {
+    // Dự phòng khi chưa cấu hình Upstash (bộ đếm in-memory, yếu)
     return res.status(429).json({ error: "Quá nhiều yêu cầu. Vui lòng thử lại sau 1 phút." });
   }
 
@@ -246,7 +312,9 @@ module.exports = async function handler(req, res) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-3.6-flash",      systemInstruction: SYSTEM_PROMPT,
+      model: "gemini-3.6-flash",
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: { maxOutputTokens: 800, temperature: 0.7 },
     });
 
     // Convert messages to Gemini format (supports multimodal)
@@ -270,8 +338,13 @@ module.exports = async function handler(req, res) {
       parts: buildParts(m),
     }));
 
-    // Gemini yeu cau history bat dau bang role "user"; bo moi tin nhan "model" o dau de startChat khong loi 500
-    while (history.length && history[0].role === "model") history.shift();
+    // Gemini yêu cầu history bắt đầu bằng role "user".
+    // Widget luôn gửi kèm lời chào của bot (role "model") ở đầu → phải loại bỏ,
+    // nếu không startChat sẽ throw và API trả về 500.
+    while (history.length && history[0].role === "model") {
+      history.shift();
+    }
+
     const chat = model.startChat({ history });
     const lastMsg = messages[messages.length - 1];
     const lastText = lastMsg.content || "";
