@@ -22,6 +22,12 @@
   let messages = [];
   let isLoading = false;
   let pendingImage = null; // { base64, mimeType }
+  // Chống spam phía client
+  let lastSentAt = 0;
+  let lastSentText = "";
+  let sentCount = 0;
+  const SEND_COOLDOWN_MS = 1500; // tối thiểu giữa 2 tin
+  const MAX_MSGS_PER_SESSION = 25; // trần số tin mỗi phiên
 
   // === STYLES ===
   const style = document.createElement("style");
@@ -388,10 +394,12 @@
       #pes-chat-box {
         bottom: 0;
         right: 0;
+        left: 0;
         width: 100vw;
-        height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
+        height: 65vh;
+        height: 65dvh;
+        max-height: 65dvh;
+        border-radius: 16px 16px 0 0;
       }
       #pes-chat-btn { bottom: 16px !important; right: 16px !important; width: 54px !important; height: 54px !important; min-width: 54px !important; max-width: 54px !important; min-height: 54px !important; max-height: 54px !important; padding: 0 !important; }
       #pes-chat-notify { bottom: 76px; right: 16px; max-width: 260px; }
@@ -544,6 +552,22 @@
   async function sendMessage(text) {
     if (isLoading || (!text.trim() && !pendingImage)) return;
 
+    // === Chống spam phía client ===
+    const now = Date.now();
+    if (now - lastSentAt < SEND_COOLDOWN_MS) return; // cooldown, bỏ qua bấm dồn
+    const trimmed = text.trim();
+    if (trimmed && trimmed === lastSentText && now - lastSentAt < 15000) return; // chặn tin trùng liên tiếp
+    if (sentCount >= MAX_MSGS_PER_SESSION) {
+      addMessage(
+        "assistant",
+        "Anh/chị đã trao đổi khá nhiều với em rồi ạ. Để được tư vấn chi tiết và nhanh nhất, anh/chị vui lòng nhắn Zalo giúp em nhé!"
+      );
+      return;
+    }
+    lastSentAt = now;
+    lastSentText = trimmed;
+    sentCount++;
+
     // Remove quick buttons if present
     const quickEl = document.getElementById("pes-quick");
     if (quickEl) quickEl.remove();
@@ -606,15 +630,44 @@
       stopNotifyLoop();
       if (messages.length === 0) showGreeting();
       inputEl.focus();
+      adjustViewport();
+    } else {
+      box.style.bottom = "";
+      box.style.height = "";
     }
   });
 
   box.querySelector(".pes-chat-close").addEventListener("click", () => {
     isOpen = false;
     box.classList.remove("open");
+    box.style.bottom = "";
+    box.style.height = "";
     // Restart notify loop when chat is closed
     startNotifyLoop();
   });
+
+  // === MOBILE: co khung chat theo bàn phím (visualViewport) — hết mảng đen ===
+  const isMobile = () => window.matchMedia("(max-width: 480px)").matches;
+  function adjustViewport() {
+    if (!isMobile() || !isOpen) {
+      box.style.bottom = "";
+      box.style.height = "";
+      return;
+    }
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    const avail = vv.height - 12;
+    const target = Math.min(Math.round(window.innerHeight * 0.65), avail);
+    box.style.bottom = keyboard + "px";
+    box.style.height = target + "px";
+    scrollToBottom();
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", adjustViewport);
+    window.visualViewport.addEventListener("scroll", adjustViewport);
+  }
+  window.addEventListener("resize", adjustViewport);
 
   sendBtn.addEventListener("click", () => sendMessage(inputEl.value));
 
