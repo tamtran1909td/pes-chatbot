@@ -270,6 +270,8 @@ module.exports = async function handler(req, res) {
       parts: buildParts(m),
     }));
 
+    // Gemini yeu cau history bat dau bang role "user"; bo moi tin nhan "model" o dau de startChat khong loi 500
+    while (history.length && history[0].role === "model") history.shift();
     const chat = model.startChat({ history });
     const lastMsg = messages[messages.length - 1];
     const lastText = lastMsg.content || "";
