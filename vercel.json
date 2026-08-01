@@ -12,8 +12,8 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
+      "src": "/api/chat",
+      "dest": "/api/chat.js",
       "headers": {
         "Access-Control-Allow-Origin": "https://pes-studio.com",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -21,12 +21,25 @@
       }
     },
     {
-      "src": "/logs",
-      "dest": "/api/logs"
+      "src": "/api/insights",
+      "dest": "/api/insights.js"
     },
     {
-      "src": "/logs/(.*)",
-      "dest": "/api/logs"
+      "src": "/api/logs",
+      "dest": "/api/logs.js"
+    },
+    {
+      "src": "/logs",
+      "dest": "/api/logs.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://pes-studio.com",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
     },
     {
       "src": "/widget.js",
