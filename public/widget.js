@@ -271,14 +271,33 @@
       text-decoration: none;
     }
 
-    /* === Thanh hành động cố định (P4-020) === */
+    /* === Thanh hành động theo ngữ cảnh (P4-020 / P4-022) === */
     .pes-action-bar {
-      display: flex;
+      display: none;
+      align-items: center;
       gap: 8px;
-      padding: 10px 12px 2px;
+      padding: 8px 12px 2px;
       background: ${BRAND.bgDark};
       border-top: 1px solid rgba(255,255,255,0.06);
+      animation: pesActionIn 0.22s ease-out;
     }
+    .pes-action-bar.is-visible { display: flex; }
+    @keyframes pesActionIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pes-action-btn.is-hidden { display: none !important; }
+    .pes-action-dismiss {
+      flex: 0 0 auto;
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: transparent;
+      color: ${BRAND.textMuted};
+      font-size: 18px; line-height: 1;
+      cursor: pointer; border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .pes-action-dismiss:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .pes-action-btn {
       flex: 1;
       display: flex;
@@ -316,8 +335,20 @@
       background: rgba(3,218,198,0.12);
       border-color: ${BRAND.teal};
     }
+    /* Tablet / iPad: giữ 2 nút cân đối, giảm nhẹ chiều cao */
+    @media (min-width: 481px) and (max-width: 1024px) {
+      .pes-action-bar { padding: 8px 12px 2px; }
+      .pes-action-btn { font-size: 13px; padding: 9px 8px; }
+    }
+    /* Điện thoại: thanh mỏng, chữ nhỏ, không chiếm tầm nhìn */
+    @media (max-width: 480px) {
+      .pes-action-bar { padding: 6px 10px 2px; gap: 6px; }
+      .pes-action-btn { font-size: 12px; padding: 8px 6px; border-radius: 8px; }
+      .pes-action-btn svg { width: 14px; height: 14px; flex: 0 0 14px; }
+      .pes-action-dismiss { width: 24px; height: 24px; font-size: 16px; }
+    }
     @media (max-width: 380px) {
-      .pes-action-btn { font-size: 12px; padding: 9px 6px; }
+      .pes-action-btn { font-size: 11px; padding: 8px 4px; gap: 4px; }
     }
 
     .pes-quick-btns {
@@ -499,15 +530,16 @@
       <button class="pes-chat-close" aria-label="Đóng chat">&times;</button>
     </div>
     <div class="pes-chat-messages" id="pes-msgs"></div>
-    <div class="pes-action-bar">
-      <a class="pes-action-btn zalo" id="pes-zalo-btn" href="${ZALO_URL}" target="_blank" rel="noopener">
+    <div class="pes-action-bar" id="pes-action-bar">
+      <a class="pes-action-btn zalo is-hidden" id="pes-zalo-btn" href="${ZALO_URL}" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         Nhắn Zalo tư vấn
       </a>
-      <a class="pes-action-btn book" id="pes-book-btn" href="${BOOKING_URL}" target="_blank" rel="noopener">
+      <a class="pes-action-btn book is-hidden" id="pes-book-btn" href="${BOOKING_URL}" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Xem bảng giá
       </a>
+      <button class="pes-action-dismiss" id="pes-action-dismiss" aria-label="Ẩn nút gợi ý" title="Ẩn">&times;</button>
     </div>
     <div class="pes-img-preview" id="pes-img-preview" style="display:none;">
       <div class="pes-img-preview-inner">
@@ -564,6 +596,87 @@
     });
   }
 
+  // === P4-022: thanh hành động hiện THEO NGỮ CẢNH ===
+  // Không hiện mặc định (che tầm nhìn trên điện thoại) — chỉ bật đúng nút
+  // khi câu của khách hoặc câu trả lời của bot chạm từ khoá tương ứng.
+  const actionBar = document.getElementById("pes-action-bar");
+  const actionDismiss = document.getElementById("pes-action-dismiss");
+
+  // Bỏ dấu tiếng Việt để bắt được cả trường hợp khách gõ không dấu
+  function pesNoAccent(s) {
+    return (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d");
+  }
+
+  // Từ khoá bảng giá: khách đang hỏi tiền → đưa trang báo giá tự phục vụ
+  // Cố ý KHÔNG dùng "gia" trần (trùng "gia đình", "tham gia") hay "tien"
+  // (trùng "tiện nghi") — chỉ bắt cụm đủ rõ nghĩa để tránh bật nút sai lúc.
+  const PRICE_KEYWORDS = [
+    "bao gia", "bang gia", "don gia", "gia ca", "gia chup", "gia quay",
+    "gia bao nhieu", "gia the nao", "gia goi", "chi phi", "bao nhieu",
+    "het bao nhieu", "bao nhieu tien", "goi chup", "goi quay", "combo",
+    "khuyen mai", "uu dai", "mac khong", "re khong", "budget", "price",
+    "tinh phi", "phu phi", "thanh toan", "coc",
+  ];
+  // Từ khoá tư vấn / chốt lịch: khách muốn nói chuyện với người thật
+  const CONTACT_KEYWORDS = [
+    "zalo", "lien he", "tu van", "goi dien", "so dien thoai", "sdt",
+    "dat lich", "book lich", "dat cho", "dat hen", "hen lich", "lich chup",
+    "lich trong", "gap nhan vien", "noi chuyen truc tiep", "nhan tin",
+    "khao sat", "ky hop dong", "goi lai", "de lai so",
+  ];
+
+  function pesMatch(text, list) {
+    const t = pesNoAccent(text);
+    return list.some(function (k) { return t.indexOf(k) > -1; });
+  }
+
+  let actionBarDismissed = false;
+
+  function updateActionBar(text) {
+    if (!actionBar || !text) return;
+    const wantPrice = pesMatch(text, PRICE_KEYWORDS);
+    const wantContact = pesMatch(text, CONTACT_KEYWORDS);
+    if (!wantPrice && !wantContact) return;
+
+    // Có tín hiệu mới → bỏ trạng thái đã tắt trước đó
+    actionBarDismissed = false;
+
+    const shown = [];
+    if (wantPrice && bookBtn && bookBtn.classList.contains("is-hidden")) {
+      bookBtn.classList.remove("is-hidden");
+      shown.push("booking");
+    }
+    if (wantContact && zaloBtn && zaloBtn.classList.contains("is-hidden")) {
+      zaloBtn.classList.remove("is-hidden");
+      shown.push("zalo");
+    }
+    if (!actionBar.classList.contains("is-visible")) {
+      actionBar.classList.add("is-visible");
+      scrollToBottom();
+    }
+    if (shown.length) {
+      track("pes_chat_actionbar_shown", {
+        session_id: SESSION_ID,
+        buttons: shown.join(","),
+        msgs_before: sentCount,
+      });
+    }
+  }
+
+  if (actionDismiss) {
+    actionDismiss.addEventListener("click", function () {
+      actionBar.classList.remove("is-visible");
+      if (zaloBtn) zaloBtn.classList.add("is-hidden");
+      if (bookBtn) bookBtn.classList.add("is-hidden");
+      actionBarDismissed = true;
+      track("pes_chat_actionbar_dismiss", { session_id: SESSION_ID, msgs_before: sentCount });
+    });
+  }
+
   // === HELPERS ===
   function scrollToBottom() {
     setTimeout(() => { msgsEl.scrollTop = msgsEl.scrollHeight; }, 50);
@@ -595,6 +708,8 @@
     div.innerHTML = html;
     msgsEl.appendChild(div);
     scrollToBottom();
+    // P4-022: bật nút gợi ý nếu nội dung (của khách hoặc của bot) chạm từ khoá
+    updateActionBar(content);
   }
 
   function showLoading() {
