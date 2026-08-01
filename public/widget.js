@@ -708,8 +708,10 @@
     div.innerHTML = html;
     msgsEl.appendChild(div);
     scrollToBottom();
-    // P4-022: bật nút gợi ý nếu nội dung (của khách hoặc của bot) chạm từ khoá
-    updateActionBar(content);
+    // P4-022: bật nút gợi ý nếu nội dung (của khách hoặc của bot) chạm từ khoá.
+    // Bỏ qua câu chào mở đầu (sentCount === 0) — lúc đó khách chưa hỏi gì,
+    // hiện nút ngay sẽ che tầm nhìn đúng như trường hợp cần tránh.
+    if (role === "user" || sentCount > 0) updateActionBar(content);
   }
 
   function showLoading() {
