@@ -4,6 +4,11 @@
   // === CONFIG ===
   const API_URL =
     window.PES_CHATBOT_API || "https://pes-chatbot.vercel.app/api/chat";
+  // Số Zalo chính thức DUY NHẤT của PES Studio (chốt 01/07/2026)
+  const ZALO_PHONE = "0368390315";
+  const ZALO_URL = window.PES_ZALO_URL || "https://zalo.me/" + ZALO_PHONE;
+  // Trang khách tự thao tác chọn gói / xem báo giá
+  const BOOKING_URL = window.PES_BOOKING_URL || "https://book.pes-studio.com/";
   const BRAND = {
     primary: "#BB86FC",
     teal: "#03DAC6",
@@ -266,6 +271,55 @@
       text-decoration: none;
     }
 
+    /* === Thanh hành động cố định (P4-020) === */
+    .pes-action-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px 2px;
+      background: ${BRAND.bgDark};
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .pes-action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .pes-action-btn svg {
+      width: 16px; height: 16px; flex: 0 0 16px;
+      fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .pes-action-btn.zalo {
+      background: ${BRAND.primary};
+      color: #121212;
+    }
+    .pes-action-btn.zalo:hover { opacity: 0.85; }
+    .pes-action-btn.book {
+      background: transparent;
+      color: ${BRAND.teal};
+      border-color: rgba(3,218,198,0.45);
+    }
+    .pes-action-btn.book:hover {
+      background: rgba(3,218,198,0.12);
+      border-color: ${BRAND.teal};
+    }
+    @media (max-width: 380px) {
+      .pes-action-btn { font-size: 12px; padding: 9px 6px; }
+    }
+
     .pes-quick-btns {
       display: flex;
       flex-wrap: wrap;
@@ -445,6 +499,16 @@
       <button class="pes-chat-close" aria-label="Đóng chat">&times;</button>
     </div>
     <div class="pes-chat-messages" id="pes-msgs"></div>
+    <div class="pes-action-bar">
+      <a class="pes-action-btn zalo" id="pes-zalo-btn" href="${ZALO_URL}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Nhắn Zalo tư vấn
+      </a>
+      <a class="pes-action-btn book" id="pes-book-btn" href="${BOOKING_URL}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Xem bảng giá
+      </a>
+    </div>
     <div class="pes-img-preview" id="pes-img-preview" style="display:none;">
       <div class="pes-img-preview-inner">
         <img id="pes-img-thumb" src="" alt="Preview">
@@ -479,6 +543,26 @@
   const imgPreview = document.getElementById("pes-img-preview");
   const imgThumb = document.getElementById("pes-img-thumb");
   const imgRemove = document.getElementById("pes-img-remove");
+  const zaloBtn = document.getElementById("pes-zalo-btn");
+  const bookBtn = document.getElementById("pes-book-btn");
+
+  // Tracking 2 nút hành động (P4-020) — đo hiệu quả trong báo cáo insight hàng tháng
+  if (zaloBtn) {
+    zaloBtn.addEventListener("click", function () {
+      track("pes_chat_zalo_click", {
+        session_id: SESSION_ID,
+        msgs_before_click: sentCount,
+      });
+    });
+  }
+  if (bookBtn) {
+    bookBtn.addEventListener("click", function () {
+      track("pes_chat_booking_click", {
+        session_id: SESSION_ID,
+        msgs_before_click: sentCount,
+      });
+    });
+  }
 
   // === HELPERS ===
   function scrollToBottom() {
