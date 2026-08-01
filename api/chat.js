@@ -255,19 +255,59 @@ async function checkUpstashLimits(ip) {
   return { tooFast: false, overDaily: dRes[0].result > DAILY_CAP };
 }
 
-// Ghi log câu hỏi khách vào Upstash theo tháng (để tổng hợp insight)
-async function logQuestion(sid, text) {
-  if (!upstashEnabled || !text) return;
-  const clean = String(text)
-    .slice(0, 500)
-    .replace(/(\+?\d[\d\s().\-]{7,}\d)/g, "[sđt]"); // che số điện thoại
+// Trích số điện thoại khách chủ động để lại (để PES gọi lại được).
+// Chỉ nhận dạng số VN hợp lệ: 10 số bắt đầu 0, hoặc dạng +84/84.
+function extractPhone(text) {
+  if (!text) return "";
+  const raw = String(text);
+  const patterns = [
+    /(?:\+?84|0)\s*([35789])\s*(?:\d\s*){8}/g, // di động VN
+    /0\s*(?:2)\s*(?:\d\s*){9}/g, // cố định VN
+  ];
+  for (const re of patterns) {
+    const m = raw.match(re);
+    if (m && m.length) {
+      let p = m[0].replace(/[^\d+]/g, "");
+      if (p.startsWith("+84")) p = "0" + p.slice(3);
+      else if (p.startsWith("84") && p.length > 10) p = "0" + p.slice(2);
+      if (p.length >= 10 && p.length <= 11) return p;
+    }
+  }
+  return "";
+}
+
+// Ghi log hội thoại vào Upstash theo tháng (phục vụ báo cáo + đọc lại transcript).
+// Mỗi entry = 1 lượt trao đổi: câu khách + câu bot trả lời.
+// SĐT khách để lại được lưu nguyên (đã thông báo trong widget) để PES follow-up.
+async function logTurn(sid, userText, botText, meta) {
+  if (!upstashEnabled || (!userText && !botText)) return;
+  const q = String(userText || "").slice(0, 1000);
+  const a = String(botText || "").slice(0, 2000);
   const month = new Date().toISOString().slice(0, 7).replace("-", ""); // YYYYMM
   const key = "pes:chatlog:" + month;
-  const entry = JSON.stringify({ ts: Date.now(), sid: sid || "", q: clean });
+  const entry = JSON.stringify({
+    ts: Date.now(),
+    sid: sid || "",
+    q: q,
+    a: a,
+    phone: extractPhone(userText),
+    page: (meta && meta.page) || "",
+    dev: (meta && meta.dev) || "",
+    err: (meta && meta.err) || undefined,
+  });
   await redisPipeline([
     ["RPUSH", key, entry],
     ["EXPIRE", key, 15552000, "NX"], // tự xoá sau 180 ngày
   ]);
+}
+
+// Rút gọn user-agent thành nhãn thiết bị đọc được
+function deviceLabel(ua) {
+  const s = String(ua || "");
+  if (/iPad|Tablet/i.test(s)) return "Tablet";
+  if (/Mobi|Android|iPhone/i.test(s)) return "Mobile";
+  if (!s) return "";
+  return "Desktop";
 }
 
 module.exports = async function handler(req, res) {
@@ -317,13 +357,12 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: "Conversation too long. Please start a new chat." });
   }
 
-  // Ghi log câu hỏi khách (không chặn/không làm gãy chat nếu lỗi)
-  try {
-    const lastUserText = (messages[messages.length - 1] || {}).content || "";
-    await logQuestion(sessionId, lastUserText);
-  } catch (e) {
-    console.error("chatlog error:", e.message);
-  }
+  // Thông tin phiên để dựng bảng khách hàng trong báo cáo tháng
+  const logMeta = {
+    page: String((req.body && req.body.page) || req.headers["referer"] || "").slice(0, 200),
+    dev: deviceLabel(req.headers["user-agent"]),
+  };
+  const lastUserText = (messages[messages.length - 1] || {}).content || "";
 
   // Validate API key
   const apiKey = process.env.GEMINI_API_KEY;
@@ -386,9 +425,27 @@ module.exports = async function handler(req, res) {
     const result = await chat.sendMessage(lastParts);
     const response = result.response.text();
 
+    // Ghi log cả lượt (câu khách + câu bot). Không chặn/không làm gãy chat nếu lỗi.
+    try {
+      await logTurn(sessionId, lastUserText, response, logMeta);
+    } catch (e) {
+      console.error("chatlog error:", e.message);
+    }
+
     return res.status(200).json({ reply: response });
   } catch (error) {
     console.error("Gemini API error:", error.message);
+
+    // Vẫn ghi lại câu khách khi bot lỗi — đây thường là lúc mất lead
+    try {
+      await logTurn(sessionId, lastUserText, "", {
+        page: logMeta.page,
+        dev: logMeta.dev,
+        err: String(error.message || "error").slice(0, 120),
+      });
+    } catch (e) {
+      console.error("chatlog error:", e.message);
+    }
 
     if (error.message?.includes("quota") || error.message?.includes("429")) {
       return res.status(429).json({ error: "Hệ thống đang bận. Vui lòng thử lại sau ít phút." });
