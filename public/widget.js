@@ -807,6 +807,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionId: SESSION_ID,
+          // Trang khách đang đứng khi chat — dùng cho bảng phiên trong báo cáo tháng
+          page: (function () { try { return location.pathname + location.search; } catch (e) { return ""; } })(),
           messages: messages.map((m) => {
             const obj = { role: m.role, content: m.content };
             if (m.image) obj.image = m.image;
