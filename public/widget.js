@@ -153,15 +153,17 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: #ffffff;
-      padding: 2px;
+      background: #171717;
+      padding: 7px;
+      border: 1px solid rgba(255,255,255,.12);
       box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       font-size: 14px;
-      color: ${BRAND.white};
+      color: ${BRAND.white}
+    .pes-chat-avatar img { width: 100%; height: 100%; object-fit: contain; display: block; };
     }
     .pes-chat-title {
       font-size: 15px;
@@ -552,7 +554,7 @@
   box.innerHTML = `
     <div class="pes-chat-header">
       <div class="pes-chat-header-left">
-        <div class="pes-chat-avatar"><img src="${LOGO_B64}" alt="PES"></div>
+        <div class="pes-chat-avatar"><img src="https://pes-studio.com/wp-content/uploads/2026/08/logo-favicon-trang.png" alt="PES Studio"></div>
         <div>
           <div class="pes-chat-title">PES Studio</div>
           <div class="pes-chat-subtitle">Tư vấn báo giá tự động</div>
