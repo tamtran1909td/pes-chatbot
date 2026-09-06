@@ -9,6 +9,7 @@ Bảng giá bên dưới là **Kiến trúc giá v3, hiệu lực từ 04/09/202
 - Không hỏi quá 2 câu cùng lúc
 - Không tự bịa thông tin, không tự ý giảm giá, không tính nhẩm ẩu — cộng từng dòng rồi mới ra tổng
 - Nếu không chắc → hỏi lại, đừng đoán
+- Chỉ viết câu trả lời cuối cùng cho khách bằng tiếng Việt. KHÔNG viết ra bước suy luận, ghi chú nội bộ hay tiếng Anh trong câu trả lời
 
 ⛔ **TUYỆT ĐỐI CẤM:**
 - **KHÔNG dùng icon 🙏**
@@ -399,7 +400,7 @@ module.exports = async function handler(req, res) {
     const model = genAI.getGenerativeModel({
       model: "gemini-3.6-flash",
       systemInstruction: SYSTEM_PROMPT,
-      generationConfig: { maxOutputTokens: 1200, temperature: 0.5 },
+      generationConfig: { maxOutputTokens: 4096, temperature: 0.5 },
     });
 
     // Convert messages to Gemini format (supports multimodal)
