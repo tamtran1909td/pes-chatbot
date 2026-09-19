@@ -65,11 +65,10 @@
       padding: 0 !important;
       margin: 0 !important;
       border-radius: 50% !important;
-      background: #171717 !important;
-      border: 1px solid rgba(255,255,255,.45) !important;
-      overflow: visible !important;
+      background: ${BRAND.primary} !important;
+      border: none !important;
       cursor: pointer;
-      box-shadow: 0 8px 32px rgba(10,8,16,0.55);
+      box-shadow: 0 4px 20px rgba(187,134,252,0.4);
       z-index: 99999;
       display: flex !important;
       align-items: center !important;
@@ -81,38 +80,9 @@
       text-indent: 0 !important;
       letter-spacing: 0 !important;
     }
-    #pes-chat-btn img.pes-chat-logo {
-      width: 30px !important;
-      height: 30px !important;
-      object-fit: contain !important;
-      display: block !important;
-      pointer-events: none;
-    }
-    #pes-chat-badge {
-      position: absolute !important;
-      top: -4px !important;
-      right: -4px !important;
-      width: 20px !important;
-      height: 20px !important;
-      border-radius: 50% !important;
-      background: #BB86FC !important;
-      color: #0A0810 !important;
-      font: 700 11px/20px Roboto, system-ui, sans-serif !important;
-      text-align: center !important;
-      letter-spacing: 0 !important;
-      box-shadow: 0 0 0 2px #0A0810;
-      pointer-events: none;
-      animation: pes-badge-pop 320ms cubic-bezier(.2,0,0,1);
-    }
-    #pes-chat-badge.pes-hide { display: none !important; }
-    @keyframes pes-badge-pop {
-      from { transform: scale(0); opacity: 0 }
-      to   { transform: scale(1); opacity: 1 }
-    }
     #pes-chat-btn:hover {
-      border-color: #03DAC6 !important;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 36px rgba(3,218,198,0.28);
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(187,134,252,0.55);
     }
     #pes-chat-btn svg { width: 28px; height: 28px; fill: ${BRAND.white}; }
 
@@ -153,17 +123,15 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: #171717;
-      padding: 7px;
-      border: 1px solid rgba(255,255,255,.12);
+      background: #ffffff;
+      padding: 2px;
       box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       font-size: 14px;
-      color: ${BRAND.white}
-    .pes-chat-avatar img { width: 100%; height: 100%; object-fit: contain; display: block; };
+      color: ${BRAND.white};
     }
     .pes-chat-title {
       font-size: 15px;
@@ -544,8 +512,7 @@
   const btn = document.createElement("button");
   btn.id = "pes-chat-btn";
   btn.setAttribute("aria-label", "Mở chat tư vấn PES Studio");
-  btn.innerHTML = '<img class="pes-chat-logo" src="https://pes-studio.com/wp-content/uploads/2026/08/logo-favicon-trang.png" alt="PES Studio AI" width="30" height="30"><span id="pes-chat-badge">1</span>';
-  btn.addEventListener('click', function () { var b = document.getElementById('pes-chat-badge'); if (b) b.classList.add('pes-hide'); }, { once: true });
+  btn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>`;
   document.body.appendChild(btn);
 
   // Chat box
@@ -554,7 +521,7 @@
   box.innerHTML = `
     <div class="pes-chat-header">
       <div class="pes-chat-header-left">
-        <div class="pes-chat-avatar"><img src="https://pes-studio.com/wp-content/uploads/2026/08/logo-favicon-trang.png" alt="PES Studio"></div>
+        <div class="pes-chat-avatar"><img src="${LOGO_B64}" alt="PES"></div>
         <div>
           <div class="pes-chat-title">PES Studio</div>
           <div class="pes-chat-subtitle">Tư vấn báo giá tự động</div>
@@ -1004,7 +971,7 @@
     const existing = document.getElementById("pes-chat-notify");
     if (existing) existing.remove();
 
-    playPopSound();
+    // playPopSound();  // TẮT âm thanh báo (Tâm yêu cầu 19/09/2026)
 
     const notif = document.createElement("div");
     notif.id = "pes-chat-notify";
