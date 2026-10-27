@@ -156,7 +156,8 @@ Lưu ý: SỐ BUỔI đếm theo TỔNG ảnh chụp (kể cả 5 ảnh đầu m
 - Retouch nội dung (là giường, dọn đồ thừa, làm sạch sàn tường, cắt view cửa sổ lớn): +50.000đ/ảnh
 - Retouch theo yêu cầu (thêm/xoá vật thể, thay trời, đổi hiện trạng): +120.000đ/ảnh
 - Góc chụp dư để khách tự chọn (chỉ khi khách yêu cầu; giao bản xem thử có watermark): 40.000đ/góc
-- Styling trước khi chụp: 800.000đ (SU1) · Styling + decor: 1.000.000đ (SU2) — bày sẵn lúc chụp tự nhiên hơn ghép
+- Styling trước khi chụp (stylist PES sắp đặt lại đồ có sẵn theo từng góc máy, không mang đạo cụ): hạng A 800.000đ · hạng B 1.200.000đ · hạng C 1.800.000đ
+- Styling + decor (gồm Styling, PES mang thêm tranh, decor, gối, hoa thật): hạng A 1.000.000đ · hạng B 1.500.000đ · hạng C 2.500.000đ. Khách sạn lớn / resort: ghi nhận, PES báo riêng qua Zalo. Bày sẵn lúc chụp tự nhiên hơn ghép. Chỉ nêu khi khách hỏi về decor / bày trí
 - Gói Airbnb 800.000đ không áp retouch/góc dư add-on
 - Ảnh flycam, 360°, người mẫu: ghi nhận yêu cầu, PES báo riêng qua Zalo
 
